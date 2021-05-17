@@ -1,6 +1,6 @@
 {
   "name": "react-native-repicker",
-  "version": "1.0.0-beta1",
+  "version": "1.0.0-beta2",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "liuyunjs",
@@ -34,7 +34,7 @@
   "dependencies": {
     "color": "^3.1.3",
     "react-native-linear-gradient": "^2.5.6",
-    "react-native-reswiper": "^1.0.0-beta1",
+    "react-native-reswiper": "^1.0.0-beta2",
     "react-use": "^17.2.4",
     "react-use-callback": "^0.0.3",
     "react-will-mount-hook": "^1.0.1"

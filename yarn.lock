@@ -1157,14 +1157,14 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@liuyunjs/hooks@^1.0.0-beta1":
-  version "1.0.0-beta1"
-  resolved "https://registry.nlark.com/@liuyunjs/hooks/download/@liuyunjs/hooks-1.0.0-beta1.tgz#55fcd6a2f4ef767053f83596e0185946a7b38756"
-  integrity sha1-VfzWovTvdnBT+DWW4BhZRqezh1Y=
+"@liuyunjs/hooks@^1.0.0-beta2":
+  version "1.0.0-beta2"
+  resolved "https://registry.yarnpkg.com/@liuyunjs/hooks/-/hooks-1.0.0-beta2.tgz#6fa90c49c89bb283aeb475c7c3c535bc5ce4bb06"
+  integrity sha512-pXiH+/Qd3iu/5oXQf/XRZipb8nqo6AI0EUKmavfo3Gv+rvZRYyYs7V8IYKkCNB5+htzmz6mbR1Wodhko21bvAg==
   dependencies:
     "@liuyunjs/timer" "^1.0.0-beta3"
     "@liuyunjs/utils" "1.0.0-beta5"
-    react "^16.8.0||^17.0.2"
+    react ">=16.8.0"
     react-native-gesture-handler "^1.10.3"
     react-native-reanimated "^1.13.3"
     react-use-callback "^0.0.3"
@@ -4173,23 +4173,23 @@ react-native-linear-gradient@^2.5.6:
   resolved "https://registry.npm.taobao.org/react-native-linear-gradient/download/react-native-linear-gradient-2.5.6.tgz#96215cbc5ec7a01247a20890888aa75b834d44a0"
   integrity sha1-liFcvF7HoBJHogiQiIqnW4NNRKA=
 
-react-native-reanimated@1.13.3, react-native-reanimated@^1.13.3:
+react-native-reanimated@^1.13.3:
   version "1.13.3"
   resolved "https://registry.npm.taobao.org/react-native-reanimated/download/react-native-reanimated-1.13.3.tgz#fb0e1d582c8866015140f2159e147ffe6e798a3a"
   integrity sha1-+w4dWCyIZgFRQPIVnhR//m55ijo=
   dependencies:
     fbjs "^1.0.0"
 
-react-native-reswiper@^1.0.0-beta1:
-  version "1.0.0-beta1"
-  resolved "https://registry.nlark.com/react-native-reswiper/download/react-native-reswiper-1.0.0-beta1.tgz#45e03997a242e58159a145768e4a1f55052dfbda"
-  integrity sha1-ReA5l6JC5YFZoUV2jkofVQUt+9o=
+react-native-reswiper@^1.0.0-beta2:
+  version "1.0.0-beta2"
+  resolved "https://registry.yarnpkg.com/react-native-reswiper/-/react-native-reswiper-1.0.0-beta2.tgz#2f4dfc42918aa9f0ad65175b03378f66a4765dd8"
+  integrity sha512-HUmf4uxAXVAoOiY92wh7oqcnbtCfD4iU+cLpBiLcpnMG/+eSuW2268KkKIvdBg+pxVxY3A4X04CPwl4+G9oFrA==
   dependencies:
-    "@liuyunjs/hooks" "^1.0.0-beta1"
+    "@liuyunjs/hooks" "^1.0.0-beta2"
     "@liuyunjs/timer" "^1.0.0-beta3"
     "@liuyunjs/utils" "1.0.0-beta5"
     react-native-gesture-handler "^1.10.3"
-    react-native-reanimated "1.13.3"
+    react-native-reanimated "^1.13.3"
     react-use-callback "^0.0.3"
 
 react-shallow-renderer@^16.13.1:
@@ -4245,10 +4245,10 @@ react-will-mount-hook@^1.0.1:
   resolved "https://registry.nlark.com/react-will-mount-hook/download/react-will-mount-hook-1.0.1.tgz#d9a90d95005b76cb17f23d8ad8136ccb95d8cc7c"
   integrity sha1-2akNlQBbdssX8j2K2BNsy5XYzHw=
 
-react@^16.8.0||^17.0.2:
+react@>=16.8.0:
   version "17.0.2"
-  resolved "https://registry.nlark.com/react/download/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
-  integrity sha1-0LXMUW0p6z7uOD91tihkz7aAADc=
+  resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
+  integrity sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
