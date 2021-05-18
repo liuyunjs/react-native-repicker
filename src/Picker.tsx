@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { useWillMount } from 'react-will-mount-hook';
-import useReactCallback from 'react-use-callback';
+import { useWillMount } from '@liuyunjs/hooks/lib/useWillMount';
+import { useReactCallback } from '@liuyunjs/hooks/lib/useReactCallback';
 import useUpdateEffect from 'react-use/esm/useUpdateEffect';
 import { Swiper, SwiperRef } from 'react-native-reswiper';
 import { PickerOverlay } from './PickerOverlay';
