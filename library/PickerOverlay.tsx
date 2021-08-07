@@ -3,11 +3,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { StyleSheet, View, ColorValue } from 'react-native';
 import colorUtil from 'color';
 
-const OverlayGradient = React.memo<{
+const OverlayGradient: React.FC<{
   y: number;
   color: string;
   height: number;
-}>(({ y, color, height }) => {
+}> = ({ y, color, height }) => {
   const colors = [color, colorUtil(color, 'hex').fade(1).toString()];
   if (y) colors.reverse();
   return (
@@ -16,7 +16,7 @@ const OverlayGradient = React.memo<{
       style={[styles.gradient, { height, top: y }]}
     />
   );
-});
+};
 
 const OverlayLine: React.FC<{
   y: number;
@@ -38,25 +38,23 @@ const OverlayLine: React.FC<{
 export const PickerOverlay = React.memo<{
   height: number;
   total: number;
-  dark: boolean;
-}>(({ height, total, dark: isDark }) => {
+  indicatorColor: string;
+  overlayColor: string;
+}>(function PickerOverlay({ height, indicatorColor, total, overlayColor }) {
   const halfHeight = height * total;
   const gradientHeight = halfHeight + height * 0.5;
   const bottomPosition = halfHeight + height;
 
-  const gradientColor = isDark ? '#000' : '#fff';
-  const strokeColor = isDark ? '#fff' : '#000';
-
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      <OverlayGradient color={gradientColor} y={0} height={gradientHeight} />
+      <OverlayGradient color={overlayColor} y={0} height={gradientHeight} />
       <OverlayGradient
-        color={gradientColor}
+        color={overlayColor}
         y={gradientHeight}
         height={gradientHeight}
       />
-      <OverlayLine y={halfHeight} color={strokeColor} />
-      <OverlayLine y={bottomPosition} color={strokeColor} />
+      <OverlayLine y={halfHeight} color={indicatorColor} />
+      <OverlayLine y={bottomPosition} color={indicatorColor} />
     </View>
   );
 });
