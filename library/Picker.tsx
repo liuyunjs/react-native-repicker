@@ -67,7 +67,6 @@ export const Picker: React.FC<PickerProps> = ({
               <PickerItem
                 key={item.value}
                 height={itemHeight!}
-                // offset={offset}
                 color={itemColor!}
                 fontSize={itemFontSize!}
                 label={item.label}
