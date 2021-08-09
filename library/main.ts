@@ -3,7 +3,7 @@ import { darkly } from 'rn-darkly';
 
 import { Picker as RPicker } from './Picker';
 
-const Picker = darkly<
+let Picker = darkly<
   React.ComponentType<React.ComponentProps<typeof RPicker>>,
   {
     darkItemColor?: string;
@@ -18,6 +18,6 @@ Picker.defaultProps = {
   darkOverlayColor: '#000',
 };
 
-const MemoPicker = React.memo(Picker);
+Picker = React.memo(Picker);
 
-export { MemoPicker as Picker };
+export { Picker };

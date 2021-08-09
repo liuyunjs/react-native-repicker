@@ -2,12 +2,16 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Picker } from './library/main';
 
-const data = new Array(100)
-  .fill(0)
-  .map((v, i) => ({ value: i, label: i + 'label' }));
-
 const App = () => {
-  const [selected, setSelected] = React.useState(0);
+  const [selected, setSelected] = React.useState(50);
+
+  const [count, setCount] = React.useState(100);
+
+  const data = React.useMemo(() => {
+    return new Array(count)
+      .fill(0)
+      .map((v, i) => ({ value: i, label: i + 'label' }));
+  }, [count]);
 
   return (
     <>
@@ -20,7 +24,9 @@ const App = () => {
       </View>
       <Text
         onPress={() => {
-          setSelected(Math.floor(Math.random() * 100));
+          const count = Math.floor(Math.random() * 100);
+          setCount(count);
+          setSelected(Math.floor(Math.random() * count));
         }}
         style={{ fontSize: 30 }}>
         change
