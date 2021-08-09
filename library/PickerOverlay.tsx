@@ -1,14 +1,25 @@
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import { StyleSheet, View, ColorValue } from 'react-native';
-import colorUtil from 'color';
+import { StyleSheet, View, ColorValue, processColor } from 'react-native';
+
+function red(c: number) {
+  return (c >> 16) & 255;
+}
+function green(c: number) {
+  return (c >> 8) & 255;
+}
+function blue(c: number) {
+  return c & 255;
+}
 
 const OverlayGradient: React.FC<{
   y: number;
   color: string;
   height: number;
 }> = ({ y, color, height }) => {
-  const colors = [color, colorUtil(color, 'hex').fade(1).toString()];
+  const c = processColor(color) as number;
+
+  const colors = [color, `rgba(${red(c)}, ${green(c)}, ${blue(c)}, 0)`];
   if (y) colors.reverse();
   return (
     <LinearGradient
