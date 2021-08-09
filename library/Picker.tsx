@@ -58,7 +58,11 @@ export const Picker: React.FC<PickerProps> = ({
       onGestureEvent={pan}
       onHandlerStateChange={pan}>
       <Animated.View
-        style={{ height: itemHeight! * itemTotal!, overflow: 'hidden' }}>
+        style={{
+          height: itemHeight! * itemTotal!,
+          overflow: 'hidden',
+          backgroundColor: overlayColor,
+        }}>
         <Animated.View style={style}>
           {data.map((item, index) => {
             if (!index) ctx.mapping = {};
