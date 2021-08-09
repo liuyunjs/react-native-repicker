@@ -35,11 +35,26 @@ export const useReaction = ({
     return onChange(index, call([index], onChangeCallback));
   }, []);
 
-  React.useEffect(() => {
+  const onReset = (time: number) => {
     if (selected == null) return;
-    const targetIndex = ctx.mapping[selected];
-    if (targetIndex == null || targetIndex === ctx.index) return;
+    let targetIndex = ctx.mapping[selected];
+    if (targetIndex == null) {
+      const last = data.length - 1;
+      if (ctx.index > last) {
+        targetIndex = last;
+      } else {
+        targetIndex = 0;
+      }
+      if (targetIndex === ctx.index) return;
+      onChangeCallback([targetIndex]);
+      nextIndex.setValue(helper.animateTo(targetIndex, time));
+      return;
+    }
+    if (targetIndex === ctx.index) return;
     ctx.index = targetIndex;
-    nextIndex.setValue(helper.animateTo(targetIndex, 500));
-  }, [selected]);
+    nextIndex.setValue(helper.animateTo(targetIndex, time));
+  };
+
+  React.useEffect(() => onReset(500), [selected]);
+  React.useEffect(() => onReset(0), [data]);
 };
