@@ -70,12 +70,11 @@ export const useInitializer = ({
     to: Animated.Adaptable<number>,
     time: Animated.Adaptable<number>,
   ) => {
-    return block([
-      anim.stop(),
-      set(duration, time),
-      anim.start(),
-      set(nextIndex, to),
-    ]);
+    return cond(
+      time,
+      [anim.stop(), set(duration, time), anim.start(), set(nextIndex, to)],
+      [anim.stop(), set(nextIndex, to), set(index, to), set(position, to)],
+    );
   };
 
   const reset = React.useCallback(
