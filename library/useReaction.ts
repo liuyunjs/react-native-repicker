@@ -41,20 +41,15 @@ export const useReaction = ({
     if (targetIndex == null) {
       const last = data.length - 1;
       if (ctx.index > last) {
-        targetIndex = last;
-      } else {
-        targetIndex = 0;
+        onChangeCallback([last]);
+        return nextIndex.setValue(helper.animateTo(last, time));
       }
-      if (targetIndex === ctx.index) return;
-      onChangeCallback([targetIndex]);
-      nextIndex.setValue(helper.animateTo(targetIndex, time));
-      return;
+      targetIndex = ctx.index;
     }
     if (targetIndex === ctx.index) return;
     ctx.index = targetIndex;
     nextIndex.setValue(helper.animateTo(targetIndex, time));
   };
 
-  React.useEffect(() => onReset(500), [selected]);
-  React.useEffect(() => onReset(0), [data]);
+  React.useEffect(() => onReset(500), [selected, data]);
 };
