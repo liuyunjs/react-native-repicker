@@ -13,6 +13,8 @@ const App = () => {
       .map((v, i) => ({ value: i, label: i + 'label' }));
   }, [count]);
 
+  console.log(selected);
+
   return (
     <>
       <View style={{ paddingTop: 200 }}>
@@ -26,7 +28,7 @@ const App = () => {
         onPress={() => {
           const count = Math.floor(Math.random() * 100);
           setCount(count);
-          setSelected(Math.floor(Math.random() * count));
+          // setSelected(Math.floor(Math.random() * count));
         }}
         style={{ fontSize: 30 }}>
         change
