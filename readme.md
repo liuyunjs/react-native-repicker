@@ -4,18 +4,18 @@
 
 ### yarn
 ```shell
-yarn add react-native-repicker react-native-reanimated react-native-linear-gradient react-native-gesture-handler
+yarn add react-native-repicker react-native-linear-gradient
 ```
 ### npm
 ```shell
-npm install react-native-repicker react-native-reanimated react-native-linear-gradient react-native-gesture-handler --save
+npm install react-native-repicker react-native-linear-gradient --save
 ```
 
 ## 示例
 ```javascript
 import React from 'react';
 import { View, Text, SafeAreaView } from 'react-native';
-import { Picker } from './library/main';
+import { Picker } from 'react-native-repicker';
 
 const data = new Array(100)
   .fill(0)
@@ -27,7 +27,7 @@ const App = () => {
   return (
     <SafeAreaView>
       <View style={{ paddingTop: 200 }}>
-        <Picker
+        <PickerCustom
           selected={selected}
           onChange={(item) => setSelected(item.value)}
           data={data}

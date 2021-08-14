@@ -1,6 +1,5 @@
 import React from 'react';
 import { darkly } from 'rn-darkly';
-
 import { Picker as RPicker } from './Picker';
 
 let Picker = darkly<

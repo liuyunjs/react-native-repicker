@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Picker } from './library/main';
+import { Picker } from './library/Picker';
 
 const App = () => {
   const [selected, setSelected] = React.useState(50);
@@ -28,7 +28,6 @@ const App = () => {
         onPress={() => {
           const count = Math.floor(Math.random() * 100);
           setCount(count);
-          // setSelected(Math.floor(Math.random() * count));
         }}
         style={{ fontSize: 30 }}>
         change
