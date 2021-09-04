@@ -8,18 +8,17 @@ import {
 } from 'react-native';
 import { useWillMount } from '@liuyunjs/hooks/lib/useWillMount';
 import { useReactCallback } from '@liuyunjs/hooks/lib/useReactCallback';
-import useUpdateEffect from 'react-use/esm/useUpdateEffect';
 import { isFunction } from '@liuyunjs/utils/lib/isFunction';
 import { PickerOverlay } from './PickerOverlay';
 import { PickerItem } from './PickerItem';
 
 type Item = { value: string | number; label: string | number };
 
-type PickerProps = {
-  onChange?: (selected: Item) => void;
+export type PickerViewProps = {
+  onChange?: (selected: number) => void;
   data: Item[];
   itemHeight?: number;
-  selected?: number | string;
+  selected?: number;
   itemTotal?: number;
   itemFontSize?: number;
   itemColor?: string;
@@ -29,7 +28,7 @@ type PickerProps = {
 
 const keyExtractor = (item: Item) => item.value + '';
 
-export const Picker: React.FC<PickerProps> = ({
+let PickerView: React.FC<PickerViewProps> = ({
   itemHeight,
   selected,
   data,
@@ -86,9 +85,8 @@ export const Picker: React.FC<PickerProps> = ({
   const onChangeCallback = (index: number) => {
     if (index === ctx.index) return;
     ctx.index = index;
-    const item = data[index];
-    if (item && isFunction(onChange)) {
-      onChange(item);
+    if (isFunction(onChange)) {
+      onChange(index);
     }
   };
 
@@ -99,20 +97,16 @@ export const Picker: React.FC<PickerProps> = ({
     },
   );
 
-  const mapping = React.useMemo(
-    () =>
-      data.reduce((prev, curr, index) => {
-        prev[curr.value] = index;
-        return prev;
-      }, {} as Record<string | number, number>),
-    [data],
-  );
-
-  useUpdateEffect(() => {
-    if (selected == null) return;
-    let targetIndex = mapping[selected];
+  React.useEffect(() => {
+    let target: Item;
+    if (
+      selected == null ||
+      ((target = data[selected]) && ctx.index === selected)
+    )
+      return;
     let animated = true;
-    if (targetIndex == null) {
+    let targetIndex = selected;
+    if (target == null) {
       const last = data.length - 1;
       if (ctx.index > last) {
         targetIndex = last;
@@ -120,10 +114,10 @@ export const Picker: React.FC<PickerProps> = ({
       }
     }
 
-    if (targetIndex == null || targetIndex < 0) return;
+    if (targetIndex < 0) return;
     listRef.current?.scrollToIndex({ index: targetIndex, animated });
     if (!animated) onChangeCallback(targetIndex);
-  }, [selected, mapping]);
+  }, [selected, data]);
 
   const contentContainerStyle = React.useMemo(
     () => ({
@@ -169,12 +163,11 @@ export const Picker: React.FC<PickerProps> = ({
   );
 };
 
-Picker.defaultProps = {
+PickerView.defaultProps = {
   itemHeight: 36,
   data: [],
   itemTotal: 7,
   itemFontSize: 16,
-  indicatorColor: '#666',
-  itemColor: '#333',
-  overlayColor: '#fff',
 };
+
+export { PickerView };

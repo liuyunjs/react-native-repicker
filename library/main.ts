@@ -1,22 +1,7 @@
-import React from 'react';
-import { darkly } from 'rn-darkly';
-import { Picker as RPicker } from './Picker';
+import 'react-native-smart-modal';
+import { darkly } from './darkly';
+import { withPicker } from './withPicker';
+import { PickerView as RNPickerView } from './PickerView';
 
-let Picker = darkly<
-  React.ComponentType<React.ComponentProps<typeof RPicker>>,
-  {
-    darkItemColor?: string;
-    darkIndicatorColor?: string;
-    darkOverlayColor?: string;
-  }
->(RPicker, [], ['itemColor', 'indicatorColor', 'overlayColor']);
-
-Picker.defaultProps = {
-  darkItemColor: '#eee',
-  darkIndicatorColor: '#ccc',
-  darkOverlayColor: '#000',
-};
-
-Picker = React.memo(Picker);
-
-export { Picker };
+export const PickerView = darkly(RNPickerView);
+export const Picker = withPicker(RNPickerView);
