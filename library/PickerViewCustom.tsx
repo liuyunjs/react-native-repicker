@@ -37,6 +37,7 @@ import Animated, {
   neq,
 } from 'react-native-reanimated';
 import { isAnyObject } from '@liuyunjs/utils/lib/isAnyObject';
+import { clamp } from '@liuyunjs/utils/lib/clamp';
 import { PickerItem } from './PickerItem';
 import { PickerOverlay } from './PickerOverlay';
 
@@ -312,14 +313,10 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
     const dataLength = data.length;
 
     if (prevProps.data.length !== dataLength) {
-      if (this._indexJs < 1 - dataLength) {
-        this._scrollToIndex(dataLength - 1);
-        this._progress.setValue(this._indexJs * itemHeight!);
-      }
+      this._scrollToIndex(clamp(0, -selected!, dataLength - 1));
+      this._progress.setValue(this._indexJs * itemHeight!);
       this._dataLength.setValue(dataLength);
-    }
-
-    if (prevProps.selected !== selected && -this._indexJs !== selected) {
+    } else if (prevProps.selected !== selected && -this._indexJs !== selected) {
       this._indexJs = -selected!;
       this._toValue.setValue(-selected! * itemHeight!);
     }
