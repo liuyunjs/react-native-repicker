@@ -3,7 +3,7 @@ import { darkly as darkly } from 'rn-darkly';
 import { PickerViewCustom } from './PickerViewCustom';
 import { withPicker } from './withPicker';
 
-export { PickerViewCustom };
+export { PickerViewCustom, withPicker };
 
 const PickerInternal = withPicker(PickerViewCustom);
 
