@@ -1,10 +1,11 @@
-import React from 'react';
+import * as React from 'react';
 import { GestureResponderEvent } from 'react-native';
 import { Modal } from 'react-native-smart-modal';
 import { PickerContainerProps, PickerContainer } from './PickerContainer';
 
 export type PickerModalProps = PickerContainerProps & {
   picker: React.ReactElement;
+  forceDark?: boolean;
 };
 
 export const PickerModal: React.FC<PickerModalProps> = ({
@@ -18,6 +19,7 @@ export const PickerModal: React.FC<PickerModalProps> = ({
   children,
   bgColor,
   picker,
+  forceDark,
 }) => {
   const [visible, setVisible] = React.useState(false);
   const child = React.Children.only(children as React.ReactElement);
@@ -33,6 +35,7 @@ export const PickerModal: React.FC<PickerModalProps> = ({
       {touchable}
       <Modal namespace="picker" visible={visible} onChange={setVisible}>
         <PickerContainer
+          forceDark={forceDark}
           title={title}
           confirmText={confirmText}
           onConfirm={() => {

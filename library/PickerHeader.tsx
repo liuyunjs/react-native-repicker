@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import * as React from 'react';
 import { DarklyText } from 'rn-darkly';
 
 export type PickerHeaderProps = {
@@ -9,6 +9,7 @@ export type PickerHeaderProps = {
   onConfirm?: () => void;
   tintColor?: string;
   title?: string;
+  forceDark?: boolean;
 };
 
 export const PickerHeader: React.FC<PickerHeaderProps> = ({
@@ -18,6 +19,7 @@ export const PickerHeader: React.FC<PickerHeaderProps> = ({
   onCancel,
   title,
   tintColor,
+  forceDark,
 }) => {
   return (
     <View style={styles.header}>
@@ -25,11 +27,17 @@ export const PickerHeader: React.FC<PickerHeaderProps> = ({
         disabled={!onCancel}
         style={styles.btn}
         onPress={onCancel}>
-        <DarklyText darkStyle={styles.darkCancelText} style={styles.btnText}>
+        <DarklyText
+          forceDark={forceDark}
+          dark_style={styles.darkCancelText}
+          style={styles.btnText}>
           {cancelText}
         </DarklyText>
       </TouchableOpacity>
-      <DarklyText darkStyle={styles.darkTitle} style={styles.title}>
+      <DarklyText
+        forceDark={forceDark}
+        dark_style={styles.darkTitle}
+        style={styles.title}>
         {title}
       </DarklyText>
       <TouchableOpacity
@@ -67,7 +75,7 @@ const styles = StyleSheet.create({
   },
 
   btnText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
   },
 
