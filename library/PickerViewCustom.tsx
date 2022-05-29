@@ -83,8 +83,9 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
 
   private readonly _itemHeight: Animated.Value<number>;
   private readonly _dataLength: Animated.Value<number>;
-  private readonly _toValue: Animated.Value<number>;
   private readonly _progress: Animated.Value<number>;
+  private readonly _toValue: Animated.Value<number>;
+  private readonly _index: Animated.Value<number>;
 
   private _indexJs: number;
 
@@ -97,8 +98,12 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
 
     this._itemHeight = new Value(itemHeight);
     this._dataLength = new Value(data.length);
-    this._toValue = new Value<number>(-selected! * itemHeight!);
-    this._progress = new Value<number>(-selected! * itemHeight!);
+    const toValue = (this._toValue = new Value<number>(
+      -selected! * itemHeight!,
+    ));
+    const progress = (this._progress = new Value<number>(
+      -selected! * itemHeight!,
+    ));
     this._indexJs = -selected!;
 
     const gestureState = new Value<State>(State.UNDETERMINED);
@@ -106,9 +111,8 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
     const velocity = new Value<number>(0);
     const gesture = new Value<number>(0);
     const previousGesture = new Value<number>(0);
-    const progress = this._progress;
-    const toValue = this._toValue;
-    const index = new Value<number>(-selected!);
+    const index = (this._index = new Value<number>(-selected!));
+
     const clock = new Clock();
     const useDecay = new Value<number>(0);
     const duration = new Value<number>(DEFAULT_DURATION);
@@ -161,17 +165,27 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
     const next = add(progress, multiply(divide(velocity, 1000), kx));
 
     const setIndex = cond(
-      isOvershotTop(next),
-      set(toValue, minScroll),
+      greaterThan(av, VELOCITY_THRESHOLD),
       cond(
-        isOvershotBottom(next),
-        set(toValue, maxScroll),
-        set(
-          toValue,
-          multiply(round(divide(next, this._itemHeight)), this._itemHeight),
+        isOvershotTop(next),
+        set(toValue, minScroll),
+        cond(
+          isOvershotBottom(next),
+          set(toValue, maxScroll),
+          set(
+            toValue,
+            multiply(round(divide(next, this._itemHeight)), this._itemHeight),
+          ),
         ),
       ),
     );
+
+    const shouldStartTiming = and(
+      not(clockRunning(clock)),
+      neq(toValue, progress),
+    );
+
+    const shouldStartDecay = and(not(clockRunning(clock)), velocity);
 
     this._translate = block([
       cond(
@@ -187,11 +201,9 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
           set(useDecay, 0),
         ],
         [
+          cond(eq(gestureState, State.BEGAN), stopClock(clock)),
           cond(
-            and(
-              not(eq(gestureState, State.UNDETERMINED)),
-              not(eq(gestureState, State.BEGAN)),
-            ),
+            eq(gestureState, State.END),
             cond(
               isOvershotCurrent,
               // 手指拖动时超出边界，回弹
@@ -221,7 +233,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
           cond(
             useDecay,
             [
-              cond(not(clockRunning(clock)), [set(time, 0), set(finished, 0)]),
+              cond(shouldStartDecay, [set(time, 0), set(finished, 0)]),
 
               decay(
                 clock,
@@ -236,7 +248,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
                 },
               ),
 
-              cond(and(not(clockRunning(clock)), velocity), startClock(clock)),
+              cond(shouldStartDecay, startClock(clock)),
 
               cond(
                 or(isOvershotBottomCurrent, isOvershotTopCurrent),
@@ -259,7 +271,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
               ]),
             ],
             [
-              cond(not(clockRunning(clock)), [
+              cond(shouldStartTiming, [
                 set(frameTime, 0),
                 set(time, 0),
                 set(finished, 0),
@@ -279,10 +291,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
                   toValue: toValue,
                 },
               ),
-              cond(
-                and(not(clockRunning(clock)), neq(toValue, progress)),
-                startClock(clock),
-              ),
+              cond(shouldStartTiming, startClock(clock)),
               cond(finished, [
                 set(duration, 500),
                 set(index, round(divide(toValue, this._itemHeight))),
@@ -315,6 +324,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
     if (prevProps.data.length !== dataLength) {
       this._scrollToIndex(clamp(0, selected!, dataLength - 1));
       this._progress.setValue(this._indexJs * itemHeight!);
+      this._index.setValue(this._indexJs);
       this._dataLength.setValue(dataLength);
     } else if (prevProps.selected !== selected && -this._indexJs !== selected) {
       this._indexJs = -selected!;
