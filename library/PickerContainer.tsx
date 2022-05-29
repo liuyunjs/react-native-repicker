@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { PickerHeader, PickerHeaderProps } from './PickerHeader';
 
 export type PickerContainerProps = PickerHeaderProps & {
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
   container: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
+    paddingBottom: getBottomSpace(),
   },
 
   header: {

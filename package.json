@@ -60,6 +60,7 @@
   "dependencies": {
     "@liuyunjs/hooks": "^1",
     "@liuyunjs/utils": "^1",
+    "react-native-iphone-x-helper": "*",
     "react-native-smart-modal": "^2",
     "rn-darkly": "^2"
   }
