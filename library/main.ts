@@ -1,9 +1,11 @@
 import 'react-native-smart-modal';
 import { darkly as darkly } from 'rn-darkly';
-import { Picker as PickerInternal } from './Picker';
 import { PickerViewCustom } from './PickerViewCustom';
+import { withPicker } from './withPicker';
 
 export { PickerViewCustom };
+
+const PickerInternal = withPicker(PickerViewCustom);
 
 export const PickerView = darkly(
   PickerViewCustom,
