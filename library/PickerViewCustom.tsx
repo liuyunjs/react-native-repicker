@@ -313,7 +313,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
     const dataLength = data.length;
 
     if (prevProps.data.length !== dataLength) {
-      this._scrollToIndex(clamp(0, -selected!, dataLength - 1));
+      this._scrollToIndex(clamp(0, selected!, dataLength - 1));
       this._progress.setValue(this._indexJs * itemHeight!);
       this._dataLength.setValue(dataLength);
     } else if (prevProps.selected !== selected && -this._indexJs !== selected) {
