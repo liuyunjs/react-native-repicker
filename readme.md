@@ -4,11 +4,11 @@
 
 ### yarn
 ```shell
-yarn add react-native-repicker react-native-linear-gradient
+yarn add react-native-repicker react-native-linear-gradient react-native-reanimated react-native-gesture-handler
 ```
 ### npm
 ```shell
-npm install react-native-repicker react-native-linear-gradient --save
+npm install react-native-repicker react-native-linear-gradient react-native-reanimated react-native-gesture-handler --save
 ```
 
 ## PickerView 示例
@@ -33,7 +33,6 @@ const App = () => {
         <>
             <View style={{ paddingTop: 200 }}>
                 <Picker
-                    title="请选择"
                     selected={selected}
                     onChange={setSelected}
                     data={data}
@@ -81,7 +80,7 @@ const App = () => {
                     selected={selected}
                     onChange={setSelected}
                     data={data}>
-                    <DarklyText style={{ color: '#333' }} darkStyle={{ color: '#ccc' }}>
+                    <DarklyText style={{ color: '#333' }} dark_style={{ color: '#ccc' }}>
                         open
                     </DarklyText>
                 </Picker>
@@ -135,18 +134,6 @@ export default App;
 遮罩的颜色， 默认为 #fff;
 
 
-> 以下需要 useColorScheme Api 的支持
-
-#### darkItemColor?: string;
-暗黑模式下, 文字的颜色, 默认为 #eee;
-
-#### darkIndicatorColor?: string;
-暗黑模式下, 细横线的颜色，默认为 #ccc;
-
-#### darkOverlayColor?: string;
-暗黑模式下, 遮罩的颜色， 默认为 #000;
-
-
 ### Picker Modal
 
 #### children?: React.ReactElement
@@ -172,6 +159,11 @@ export default App;
 #### title?: string;
 选择器的标题，显示在顶部中间
 
-> 以下需要 useColorScheme Api 的支持
-#### darkTintColor?: string
-暗黑模式下确定按钮高亮的颜色
+## 暗黑模式
+```typescript jsx
+import {Picker, PickerView} from 'react-native-repicker';
+import {darkly} from 'rn-darkly';
+
+const DarklyPicker = darkly(Picker, 'tintColor', 'indicatorColor', 'itemColor', 'overlayColor');
+const DarklyPickerView = darkly(PickerView, 'indicatorColor', 'itemColor', 'overlayColor');
+```
