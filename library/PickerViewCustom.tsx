@@ -315,10 +315,6 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
   componentDidUpdate(prevProps: PickerViewCustomProps) {
     const { data, selected, itemHeight } = this.props;
 
-    if (prevProps.itemHeight !== itemHeight) {
-      this._itemHeight.setValue(itemHeight!);
-    }
-
     const dataLength = data.length;
 
     if (prevProps.data.length !== dataLength) {
@@ -328,7 +324,12 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
       this._dataLength.setValue(dataLength);
     } else if (prevProps.selected !== selected && -this._indexJs !== selected) {
       this._indexJs = -selected!;
-      this._toValue.setValue(-selected! * itemHeight!);
+      this._toValue.setValue(this._indexJs * itemHeight!);
+    }
+
+    if (prevProps.itemHeight !== itemHeight) {
+      this._itemHeight.setValue(itemHeight!);
+      this._toValue.setValue(this._indexJs * itemHeight!);
     }
   }
 
