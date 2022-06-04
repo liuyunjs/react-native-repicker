@@ -134,6 +134,18 @@ export default App;
 遮罩的颜色， 默认为 #fff;
 
 
+> 以下需要 useColorScheme Api 的支持
+
+#### dark_itemColor?: string;
+暗黑模式下, 文字的颜色, 默认为 #eee;
+
+#### dark_indicatorColor?: string;
+暗黑模式下, 细横线的颜色，默认为 #ccc;
+
+#### dark_overlayColor?: string;
+暗黑模式下, 遮罩的颜色， 默认为 #000;
+
+
 ### Picker Modal
 
 #### children?: React.ReactElement
@@ -154,16 +166,11 @@ export default App;
 
 点击确定按钮调用的回调
 #### tintColor?: string;
-确定按钮高亮的颜色
+确定按钮高亮的颜色，默认为 #1073ea
 
 #### title?: string;
 选择器的标题，显示在顶部中间
 
-## 暗黑模式
-```typescript jsx
-import {Picker, PickerView} from 'react-native-repicker';
-import {darkly} from 'rn-darkly';
-
-const DarklyPicker = darkly(Picker, 'tintColor', 'indicatorColor', 'itemColor', 'overlayColor');
-const DarklyPickerView = darkly(PickerView, 'indicatorColor', 'itemColor', 'overlayColor');
-```
+> 以下需要 useColorScheme Api 的支持
+#### dark_tintColor?: string
+暗黑模式下确定按钮高亮的颜色，默认为 #1161c1
