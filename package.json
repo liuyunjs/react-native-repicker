@@ -1,6 +1,6 @@
 {
   "name": "react-native-repicker",
-  "version": "2.0.8",
+  "version": "2.1.0",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
   "author": "liuyunjs",
@@ -9,7 +9,7 @@
   "scripts": {
     "start": "react-native start",
     "build": "rimraf ./dist; rollup -c rollup.config.js",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "rollup -c rollup.config.js"
   },
   "bugs": {
     "url": "https://github.com/liuyunjs/react-native-repicker/issues"
@@ -61,7 +61,7 @@
     "@liuyunjs/hooks": "^1",
     "@liuyunjs/utils": "^1",
     "react-native-iphone-x-helper": "*",
-    "react-native-smart-modal": "^2",
+    "react-native-smart-modal": ">=2.1.1",
     "rn-darkly": "^2"
   }
 }

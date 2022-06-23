@@ -1,6 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import * as React from 'react';
 import { DarklyText } from 'rn-darkly';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 export type PickerHeaderProps = {
   cancelText?: string;
@@ -23,7 +24,7 @@ export const PickerHeader: React.FC<PickerHeaderProps> = ({
 }) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity
+      <TouchableWithoutFeedback
         disabled={!onCancel}
         style={styles.btn}
         onPress={onCancel}>
@@ -33,21 +34,21 @@ export const PickerHeader: React.FC<PickerHeaderProps> = ({
           style={styles.btnText}>
           {cancelText}
         </DarklyText>
-      </TouchableOpacity>
+      </TouchableWithoutFeedback>
       <DarklyText
         forceDark={forceDark}
         dark_style={styles.darkTitle}
         style={styles.title}>
         {title}
       </DarklyText>
-      <TouchableOpacity
+      <TouchableWithoutFeedback
         disabled={!onConfirm}
         style={styles.btn}
         onPress={onConfirm}>
         <Text style={[styles.btnText, { color: tintColor }]}>
           {confirmText}
         </Text>
-      </TouchableOpacity>
+      </TouchableWithoutFeedback>
     </View>
   );
 };

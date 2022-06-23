@@ -1829,7 +1829,7 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@liuyunjs/hooks@^1":
+"@liuyunjs/hooks@>=1", "@liuyunjs/hooks@^1":
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/@liuyunjs/hooks/-/hooks-1.1.5.tgz#828ac6d08870b6a4f2053f587503ddc808b3c47d"
   integrity sha512-6dX8Zq/xwDmZ9EldARqlvNt/gW8CYkbNef3QcyBVf+8lR0AIdo8+n9eTFj9cBBhJUhboNywLfqcUwbyOoGwMBA==
@@ -1854,7 +1854,7 @@
   dependencies:
     react-will-mount-hook "^1.0.1"
 
-"@liuyunjs/utils@^1":
+"@liuyunjs/utils@>=1", "@liuyunjs/utils@^1":
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/@liuyunjs/utils/-/utils-1.2.5.tgz#837a9fe455aba086d92600ba4f1ae98358704148"
   integrity sha512-XgPG3LTORT8AKaFi0Efm2HTr7YkEWXQZyxH9gF3tcA0t25fjOViggzEDVBD7Fuz/Al5sE+fd7y5X+2Hp1XLSvg==
@@ -6803,9 +6803,9 @@ react-native-gesture-handler@^1.10.3:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-react-native-iphone-x-helper@^1.3.1:
+react-native-iphone-x-helper@*:
   version "1.3.1"
-  resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz#20c603e9a0e765fd6f97396638bdeb0e5a60b010"
+  resolved "https://registry.npmjs.org/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz#20c603e9a0e765fd6f97396638bdeb0e5a60b010"
   integrity sha512-HOf0jzRnq2/aFUcdCJ9w9JGzN3gdEg0zFE4FyYlp4jtidqU03D5X7ZegGKfT1EWteR0gPBGp9ye5T5FvSWi9Yg==
 
 react-native-linear-gradient@^2.5.6:
@@ -6813,9 +6813,9 @@ react-native-linear-gradient@^2.5.6:
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.5.6.tgz#96215cbc5ec7a01247a20890888aa75b834d44a0"
   integrity sha512-HDwEaXcQIuXXCV70O+bK1rizFong3wj+5Q/jSyifKFLg0VWF95xh8XQgfzXwtq0NggL9vNjPKXa016KuFu+VFg==
 
-react-native-portal-view@^2:
+react-native-portal-view@>=2:
   version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-portal-view/-/react-native-portal-view-2.0.1.tgz#8a7a6aec2b36e74855a9cd46e7a59f8a4f253f92"
+  resolved "https://registry.npmjs.org/react-native-portal-view/-/react-native-portal-view-2.0.1.tgz#8a7a6aec2b36e74855a9cd46e7a59f8a4f253f92"
   integrity sha512-WZq2Zl30H6KHaB/njDNIJblf0Rk0pO1tfoWGbccl9QhrF4wSPBYEOAB1ggXOb+lkQH3RjWsTe4Fuu+FcWJvapg==
 
 react-native-reanimated@^1.13.3:
@@ -6825,17 +6825,17 @@ react-native-reanimated@^1.13.3:
   dependencies:
     fbjs "^1.0.0"
 
-react-native-smart-modal@^2:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-smart-modal/-/react-native-smart-modal-2.0.0.tgz#6898d45206743b292c48a32270ba444aec65f01f"
-  integrity sha512-eDQtb9a+In9BQKioYPdd8Z32hrjuyWwtvMll/ar/i0KF6q6tmPnXiEkNb03qtvDhsU6dapR8pcd0RFO4dpahdg==
+react-native-smart-modal@>=2.1.1:
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/react-native-smart-modal/-/react-native-smart-modal-2.1.1.tgz#ddefcdd3ef09f7e3341357b56638a58b861f8ae9"
+  integrity sha512-a8czt4yC+ijX77h0xYRXQxrpd1JQzQ39BrXKJhLoY1C81jqivFt3ZE4v5wxWaARzOgScC9AsbOXy7wV6Wc6Xwg==
   dependencies:
-    "@liuyunjs/hooks" "^1"
-    "@liuyunjs/utils" "^1"
-    react-native-portal-view "^2"
-    rmotion "^2"
-    rn-darkly "^2"
-    rn-mask "^2"
+    "@liuyunjs/hooks" ">=1"
+    "@liuyunjs/utils" ">=1"
+    react-native-portal-view ">=2"
+    rmotion ">=2.1.1"
+    rn-darkly ">=2"
+    rn-mask ">=2"
 
 react-native@0.64.1:
   version "0.64.1"
@@ -7218,6 +7218,17 @@ rimraf@~2.6.2:
   dependencies:
     glob "^7.1.3"
 
+rmotion@>=2.1.1:
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/rmotion/-/rmotion-2.1.1.tgz#6b718590e66fb9961cc9ae323d5b117cb9d1c89d"
+  integrity sha512-A/BqWozkAg+Thj32rxn448Fz26eWOXWjprU/JOlodE6U7VdJT+7yEf0JnikaUpmkFnv0kOnKAmU2LcTUwrrawg==
+  dependencies:
+    "@liuyunjs/hooks" "^1"
+    "@liuyunjs/utils" "^1"
+    "@types/hoist-non-react-statics" "^3.3.1"
+    framer-motion "^4.1.17"
+    hoist-non-react-statics "*"
+
 rmotion@^2:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/rmotion/-/rmotion-2.0.1.tgz#2a6cdb1f52658f9f9a50f2196cf8ecf16c9c13c1"
@@ -7229,7 +7240,7 @@ rmotion@^2:
     framer-motion "^4.1.17"
     hoist-non-react-statics "*"
 
-rn-darkly@^2:
+rn-darkly@>=2, rn-darkly@^2:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/rn-darkly/-/rn-darkly-2.0.0.tgz#6c30d7f78a2aa2a41041f88483da1129550909e8"
   integrity sha512-M6cnrUrZzUpdFSqTtHFp4LLMJGa/IlsjEZoIERzQ92XAOSXE/KkgDnUpdEFcy5lxXXlX/+hgmRlB68ZeSfaCjQ==
@@ -7237,9 +7248,9 @@ rn-darkly@^2:
     "@types/hoist-non-react-statics" "^3.3.1"
     hoist-non-react-statics "^3.3.2"
 
-rn-mask@^2:
+rn-mask@>=2:
   version "2.0.0"
-  resolved "https://registry.yarnpkg.com/rn-mask/-/rn-mask-2.0.0.tgz#cc216505cd01ae8465266ade2dc3a2c7f7e23f78"
+  resolved "https://registry.npmjs.org/rn-mask/-/rn-mask-2.0.0.tgz#cc216505cd01ae8465266ade2dc3a2c7f7e23f78"
   integrity sha512-dvKLD3NjkXd6P8w+I/j6sdIdfLUcMLgNT74NoUihKESQAaXp3iH9VXr4+qFWtprWBhnXGaojOa6s/+l+fpNiOQ==
   dependencies:
     rmotion "^2"

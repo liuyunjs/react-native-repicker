@@ -48,6 +48,7 @@ type Item =
 
 export type PickerViewCustomProps = {
   onChange?: (selected: number) => void;
+  onSelected?: (selected: number) => void;
   data: Item[];
   itemHeight?: number;
   selected?: number;
@@ -337,6 +338,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
     this._indexJs = index;
     if (-index === this.props.selected) return;
     this.props.onChange?.(Math.abs(index));
+    this.props.onSelected?.(Math.abs(index));
   }
 
   _scrollToIndex = (index: number) => {

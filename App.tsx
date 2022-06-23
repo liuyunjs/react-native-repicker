@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, I18nManager } from 'react-native';
 import { DarklyText } from 'rn-darkly';
 import { PickerView, Picker } from './library/main';
 
+// I18nManager.forceRTL(false);
+
 const App = () => {
   const [selected, setSelected] = React.useState(0);
+  const [visible, setVisible] = React.useState(false);
 
   const [count, setCount] = React.useState(100);
 
@@ -14,20 +17,39 @@ const App = () => {
       .map((v, i) => ({ value: i, label: i + 'label' }));
   }, [count]);
 
-  console.log('selected', selected);
+  // console.log('selected', visible);
   return (
     <>
       <View style={{ paddingTop: 200 }}>
-        <Picker
-          forceDark
-          // title="请选择"
-          selected={selected}
-          onChange={setSelected}
-          data={data}>
-          <DarklyText style={{ color: '#333' }} dark_style={{ color: '#ccc' }}>
-            open
-          </DarklyText>
-        </Picker>
+        <DarklyText
+          onPress={() => {
+            // setVisible(!visible)
+            const key = Picker.show({
+              maskCloseable: false,
+              data,
+              title: '请选择',
+              selected,
+              onSelected: setSelected,
+              onCancel(e) {
+                e.preventDefault();
+                // Picker.hide(key);
+              },
+              itemHeight: 32,
+              // itemTotal: 9,
+            });
+          }}
+          style={{ color: '#333' }}
+          dark_style={{ color: '#ccc' }}>
+          open
+        </DarklyText>
+        {/*<Picker*/}
+        {/*  // visible={visible}*/}
+        {/*  // onWillChange={setVisible}*/}
+        {/*  // forceDark*/}
+        {/*  title="请选择"*/}
+        {/*  selected={selected}*/}
+        {/*  onSelected={setSelected}*/}
+        {/*  data={data}></Picker>*/}
       </View>
       <Text
         onPress={() => {
