@@ -1,5 +1,7 @@
 # react-native-repicker
 
+js实现的react-native选择器，支持组件调用，静态方法调用
+
 ## 安装
 
 ### yarn
@@ -101,6 +103,32 @@ const App = () => {
 export default App;
 ```
 
+## 静态方法调用
+
+```typescript jsx
+// 显示
+const key = Picker.show({
+    // maskCloseable: false,
+    data: new Array(count)
+        .fill(0)
+        .map((v, i) => ({ value: i, label: i + 'label' })),
+    title: '请选择',
+    selected: 0,
+    onSelected: console.log,
+    onConfirm(e) {
+        e.preventDefault();
+    },
+});
+
+// 更新
+Picker.update(key, {
+    selected: 10
+});
+
+// 关闭
+Picker.hide(key);
+
+```
 
 ## Props
 

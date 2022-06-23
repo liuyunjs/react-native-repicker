@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { withModal } from 'react-native-smart-modal';
 import { ComposeModalProps } from 'react-native-smart-modal/dist/types';
-import { useReactionState } from '@liuyunjs/hooks';
+import { useReactionState } from '@liuyunjs/hooks/lib/useReactionState';
 
 export const withPicker = <T extends object>(
   PickerView: React.ComponentType<T>,
