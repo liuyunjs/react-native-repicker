@@ -24,6 +24,7 @@ const App = () => {
         <DarklyText
           onPress={() => {
             // setVisible(!visible)
+
             const key = Picker.show({
               maskCloseable: false,
               data,
@@ -35,6 +36,7 @@ const App = () => {
                 // Picker.hide(key);
               },
               itemHeight: 32,
+              forceDark: true,
               // itemTotal: 9,
             });
           }}

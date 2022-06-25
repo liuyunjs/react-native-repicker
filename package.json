@@ -1,6 +1,6 @@
 {
   "name": "react-native-repicker",
-  "version": "2.1.0",
+  "version": "2.1.2",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
   "author": "liuyunjs",
@@ -61,7 +61,7 @@
     "@liuyunjs/hooks": "^1",
     "@liuyunjs/utils": "^1",
     "react-native-iphone-x-helper": "*",
-    "react-native-smart-modal": ">=2.1.1",
+    "react-native-smart-modal": "^2.1.2",
     "rn-darkly": "^2"
   }
 }

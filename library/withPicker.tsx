@@ -1,31 +1,122 @@
 import * as React from 'react';
-import { withModal } from 'react-native-smart-modal';
+import {
+  ModalInternal,
+  ModalInternalProps,
+  withModal,
+} from 'react-native-smart-modal';
+import { darkly } from 'rn-darkly';
 import { ComposeModalProps } from 'react-native-smart-modal/dist/types';
 import { useReactionState } from '@liuyunjs/hooks/lib/useReactionState';
+import { PickerContainer, PickerContainerProps } from './PickerContainer';
+import { injectDefaultProps } from './defaultProps';
+
+export type PickerEvent = {
+  preventDefault(): void;
+  isPreventDefaulted: boolean;
+};
+
+export type ModalPickerProps = ModalInternalProps &
+  Omit<PickerContainerProps, 'bgColor' | 'onCancel' | 'onConfirm'> & {
+    pure?: boolean;
+    onCancel?: (e: PickerEvent) => void;
+    onConfirm?: (e: PickerEvent) => void;
+    overlayColor?: string;
+    indicatorColor?: string;
+    itemColor?: string;
+  };
+
+const createPickerEvent = (): PickerEvent => {
+  const event = {
+    isPreventDefaulted: false,
+    preventDefault() {
+      event.isPreventDefaulted = true;
+    },
+  };
+  return event;
+};
 
 export const withPicker = <T extends object>(
   PickerView: React.ComponentType<T>,
 ) => {
-  const ModalPicker = withModal(PickerView);
-
-  const Picker: React.FC<Omit<ComposeModalProps<T>, 'children'>> = ({
-    children,
-    onWillChange,
-    ...props
+  const ModalInternalPicker: React.FC<ModalPickerProps & T> = ({
+    title,
+    tintColor,
+    confirmText,
+    cancelText,
+    onCancel,
+    onConfirm,
+    style,
+    pure,
+    ...rest
   }) => {
+    const picker = <PickerView {...(rest as any)} />;
+
+    if (pure) return picker;
+
+    const { onRequestClose } = rest;
+
+    const callbackEventWrapper =
+      (callback?: (e: PickerEvent) => void) => () => {
+        const event = createPickerEvent();
+        callback?.(event);
+        if (!event.isPreventDefaulted) {
+          onRequestClose?.();
+        }
+      };
+
+    return (
+      <ModalInternal {...rest}>
+        <PickerContainer
+          forceDark={rest.forceDark}
+          title={title}
+          confirmText={confirmText}
+          onConfirm={callbackEventWrapper(onConfirm)}
+          cancelText={cancelText}
+          onCancel={callbackEventWrapper(onCancel)}
+          tintColor={tintColor}
+          style={style}
+          // @ts-ignore
+          bgColor={rest.overlayColor}>
+          {picker}
+        </PickerContainer>
+      </ModalInternal>
+    );
+  };
+
+  const DarklyModalInternalPicker = darkly(
+    ModalInternalPicker,
+    'style',
+    'indicatorColor',
+    'itemColor',
+    'maskBackgroundColor',
+    'containerStyle',
+    'contentContainerStyle',
+    'tintColor',
+    'overlayColor',
+  );
+
+  injectDefaultProps(DarklyModalInternalPicker);
+
+  const ModalPicker = withModal(DarklyModalInternalPicker);
+
+  const Picker: React.FC<
+    Omit<ComposeModalProps<T>, 'children'> & ModalPickerProps
+  > = ({ children, onWillChange, ...props }) => {
     const hasVisible = 'visible' in props;
     const pure = !children && !hasVisible;
     const [visible, setVisible] = useReactionState<boolean>(props.visible!);
 
     if (pure) {
-      // @ts-ignore
-      return <ModalPicker {...props} pure={pure} />;
+      return <ModalPicker {...(props as any)} pure />;
     }
 
     if (hasVisible) {
       return (
-        // @ts-ignore
-        <ModalPicker {...props} onWillChange={onWillChange} pure={false} />
+        <ModalPicker
+          {...(props as any)}
+          onWillChange={onWillChange}
+          pure={false}
+        />
       );
     }
 
@@ -37,7 +128,6 @@ export const withPicker = <T extends object>(
     const child = React.Children.only(children) as React.ReactElement;
     const touchable = React.cloneElement(child, {
       onPress(e: any) {
-        // @ts-ignore
         child.props.onPress?.(e);
         setVisible(!visible);
       },
@@ -46,26 +136,25 @@ export const withPicker = <T extends object>(
     return (
       <>
         {touchable}
-        {
-          // @ts-ignore
-          <ModalPicker
-            {...props}
-            pure={false}
-            visible={visible}
-            onWillChange={handleWillChange}
-          />
-        }
+        <ModalPicker
+          {...(props as any)}
+          pure={false}
+          visible={visible}
+          onWillChange={handleWillChange}
+        />
       </>
     );
   };
 
-  const show = (props: Omit<ComposeModalProps<T>, 'children'>) =>
-    // @ts-ignore
-    ModalPicker.show(props);
-  const update = (props: Omit<ComposeModalProps<T>, 'children'>) =>
-    // @ts-ignore
-    ModalPicker.update(props);
-
+  const show = (
+    props: T & React.ComponentProps<typeof DarklyModalInternalPicker>,
+  ) => {
+    return ModalPicker.show(props);
+  };
+  const update = (
+    key: string,
+    props: T & React.ComponentProps<typeof DarklyModalInternalPicker>,
+  ) => ModalPicker.update(key, props);
   const hide = (key: string) => ModalPicker.hide(key);
 
   return Object.assign(Picker, { show, update, hide });
