@@ -47,7 +47,7 @@ type Item =
   | number;
 
 export type PickerViewCustomProps = {
-  onChange?: (selected: number) => void;
+  // onChange?: (selected: number) => void;
   onSelected?: (selected: number) => void;
   data: Item[];
   itemHeight?: number;
@@ -337,7 +337,7 @@ export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps>
   _onIndexChange(index: number) {
     this._indexJs = index;
     if (-index === this.props.selected) return;
-    this.props.onChange?.(Math.abs(index));
+    // this.props.onChange?.(Math.abs(index));
     this.props.onSelected?.(Math.abs(index));
   }
 
