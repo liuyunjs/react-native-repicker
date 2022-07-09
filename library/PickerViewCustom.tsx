@@ -1,40 +1,19 @@
 import * as React from 'react';
-import { State, PanGestureHandler } from 'react-native-gesture-handler';
+import {
+  PanGestureHandler,
+  PanGestureHandlerGestureEvent,
+} from 'react-native-gesture-handler';
 import { View } from 'react-native';
 import Animated, {
-  divide,
-  block,
+  useSharedValue,
+  useDerivedValue,
+  useAnimatedStyle,
+  useAnimatedGestureHandler,
   Easing,
-  // @ts-ignore
-  EasingNode,
-  cond,
-  eq,
-  set,
-  add,
-  multiply,
-  sub,
-  lessThan,
-  or,
-  greaterOrEq,
-  lessOrEq,
-  abs,
-  greaterThan,
-  log,
-  pow,
-  and,
-  round,
-  call,
-  stopClock,
-  startClock,
-  clockRunning,
-  not,
-  Value,
-  Clock,
-  event,
-  decay,
-  timing,
-  onChange,
-  neq,
+  cancelAnimation,
+  withTiming,
+  withDecay,
+  runOnJS,
 } from 'react-native-reanimated';
 import { isAnyObject } from '@liuyunjs/utils/lib/isAnyObject';
 import { clamp } from '@liuyunjs/utils/lib/clamp';
@@ -47,7 +26,6 @@ type Item =
   | number;
 
 export type PickerViewCustomProps = {
-  // onChange?: (selected: number) => void;
   onSelected?: (selected: number) => void;
   data: Item[];
   itemHeight?: number;
@@ -65,345 +43,228 @@ const VELOCITY_THRESHOLD = 5;
 const OVER_OFFSET = 100;
 const DEFAULT_DURATION = 500;
 
-const E = EasingNode || Easing;
+const easing = Easing.bezier(0.075, 0.82, 0.165, 1);
 
-const easing = E.bezier(0.075, 0.82, 0.165, 1);
+export const PickerViewCustom: React.FC<PickerViewCustomProps> = ({
+  itemHeight,
+  itemTotal,
+  indicatorColor,
+  itemColor,
+  itemFontSize,
+  overlayColor,
+  data,
+  selected,
+  onSelected,
+}) => {
+  const progress = useSharedValue(-selected! * itemHeight!);
+  const dataLength = data.length;
+  const maxScroll = (1 - dataLength) * itemHeight!;
+  const minScroll = 0;
 
-export class PickerViewCustom extends React.PureComponent<PickerViewCustomProps> {
-  static defaultProps = {
-    indicatorColor: '#666',
-    itemColor: '#333',
-    overlayColor: '#fff',
-    itemHeight: 36,
-    data: [],
-    itemTotal: 7,
-    itemFontSize: 16,
-  };
+  const isOvershotBottom = React.useCallback(
+    (next: number, offset: number = 0) => {
+      'worklet';
+      return next <= maxScroll - offset;
+    },
+    [maxScroll],
+  );
 
-  private readonly _pan: () => void;
+  const isOvershotTop = React.useCallback(
+    (next: number, offset: number = 0) => {
+      'worklet';
+      return next >= offset + minScroll;
+    },
+    [minScroll],
+  );
 
-  private readonly _itemHeight: Animated.Value<number>;
-  private readonly _dataLength: Animated.Value<number>;
-  private readonly _progress: Animated.Value<number>;
-  private readonly _toValue: Animated.Value<number>;
-  private readonly _index: Animated.Value<number>;
+  const isOvershotCurrent = useDerivedValue(() => {
+    const isOvershotBottomCurrent = isOvershotBottom(progress.value);
+    const isOvershotTopCurrent = isOvershotTop(progress.value);
+    return isOvershotBottomCurrent || isOvershotTopCurrent;
+  }, [isOvershotBottom, isOvershotTop]);
 
-  private _indexJs: number;
+  const handleSelected = React.useCallback(
+    (index: number) => {
+      onSelected?.(index);
+    },
+    [onSelected],
+  );
 
-  private readonly _translate: Animated.Node<number>;
+  const animateTo = React.useCallback(
+    (toValue: number, duration: number) => {
+      'worklet';
 
-  constructor(props: PickerViewCustomProps) {
-    super(props);
+      toValue = isOvershotTop(toValue)
+        ? minScroll
+        : isOvershotBottom(toValue)
+        ? maxScroll
+        : Math.round(toValue / itemHeight!) * itemHeight!;
 
-    const { itemHeight, selected, data } = props;
+      if (toValue === progress.value) return;
 
-    this._itemHeight = new Value(itemHeight);
-    this._dataLength = new Value(data.length);
-    const toValue = (this._toValue = new Value<number>(
-      -selected! * itemHeight!,
-    ));
-    const progress = (this._progress = new Value<number>(
-      -selected! * itemHeight!,
-    ));
-    this._indexJs = -selected!;
-
-    const gestureState = new Value<State>(State.UNDETERMINED);
-
-    const velocity = new Value<number>(0);
-    const gesture = new Value<number>(0);
-    const previousGesture = new Value<number>(0);
-    const index = (this._index = new Value<number>(-selected!));
-
-    const clock = new Clock();
-    const useDecay = new Value<number>(0);
-    const duration = new Value<number>(DEFAULT_DURATION);
-    const finished = new Value<number>(0);
-    const time = new Value<number>(0);
-    const frameTime = new Value<number>(0);
-
-    this._pan = event([
-      {
-        nativeEvent: {
-          state: gestureState,
-          velocityY: velocity,
-          translationY: gesture,
+      progress.value = withTiming(
+        toValue,
+        {
+          duration,
+          easing,
         },
-      },
-    ]);
-
-    const maxIndex = sub(1, this._dataLength);
-    const minIndex = 0;
-
-    const maxScroll = multiply(maxIndex, this._itemHeight);
-    const minScroll = multiply(minIndex, this._itemHeight);
-
-    const isOvershotBottom = (
-      next: Animated.Adaptable<number>,
-      offset: Animated.Adaptable<number> = 0,
-    ) => lessOrEq(next, sub(maxScroll, offset));
-
-    const isOvershotTop = (
-      next: Animated.Adaptable<number>,
-      offset: Animated.Adaptable<number> = 0,
-    ) => greaterOrEq(next, add(offset, minScroll));
-
-    const isOvershotBottomCurrent = isOvershotBottom(progress);
-    const isOvershotTopCurrent = isOvershotTop(progress);
-
-    const isOvershotCurrent = or(isOvershotBottomCurrent, isOvershotTopCurrent);
-
-    const dist = sub(gesture, previousGesture);
-
-    const av = abs(velocity);
-
-    const deltaTime = divide(
-      log(divide(VELOCITY_THRESHOLD, av)),
-      log(DECELERATION),
-    );
-
-    const kv = pow(DECELERATION, deltaTime);
-    const kx = divide(multiply(DECELERATION, sub(1, kv)), sub(1, DECELERATION));
-    const next = add(progress, multiply(divide(velocity, 1000), kx));
-
-    const setIndex = cond(
-      greaterThan(av, VELOCITY_THRESHOLD),
-      cond(
-        isOvershotTop(next),
-        set(toValue, minScroll),
-        cond(
-          isOvershotBottom(next),
-          set(toValue, maxScroll),
-          set(
-            toValue,
-            multiply(round(divide(next, this._itemHeight)), this._itemHeight),
-          ),
-        ),
-      ),
-    );
-
-    const shouldStartTiming = and(
-      not(clockRunning(clock)),
-      neq(toValue, progress),
-    );
-
-    const shouldStartDecay = and(not(clockRunning(clock)), velocity);
-
-    this._translate = block([
-      cond(
-        eq(gestureState, State.ACTIVE),
-        [
-          stopClock(clock),
-          cond(
-            isOvershotCurrent,
-            // 超出边界
-            [set(progress, add(progress, divide(dist, 4)))],
-            set(progress, add(progress, dist)),
-          ),
-          set(useDecay, 0),
-        ],
-        [
-          cond(eq(gestureState, State.BEGAN), stopClock(clock)),
-          cond(
-            eq(gestureState, State.END),
-            cond(
-              isOvershotCurrent,
-              // 手指拖动时超出边界，回弹
-              [
-                set(useDecay, 0),
-                set(duration, DEFAULT_DURATION),
-                set(
-                  toValue,
-                  cond(isOvershotBottomCurrent, maxScroll, minScroll),
-                ),
-              ],
-              cond(
-                and(
-                  greaterThan(av, VELOCITY_THRESHOLD),
-                  or(
-                    isOvershotBottom(next, OVER_OFFSET),
-                    isOvershotTop(next, OVER_OFFSET),
-                  ),
-                ),
-                // 滑动速度足够，使用惯性滚动
-                [set(useDecay, 1), setIndex],
-                [set(useDecay, 0), setIndex, set(duration, deltaTime)],
-              ),
-            ),
-          ),
-
-          cond(
-            useDecay,
-            [
-              cond(shouldStartDecay, [set(time, 0), set(finished, 0)]),
-
-              decay(
-                clock,
-                {
-                  position: progress,
-                  time: time,
-                  finished: finished,
-                  velocity: velocity,
-                },
-                {
-                  deceleration: DECELERATION,
-                },
-              ),
-
-              cond(shouldStartDecay, startClock(clock)),
-
-              cond(
-                or(isOvershotBottomCurrent, isOvershotTopCurrent),
-                set(
-                  velocity,
-                  multiply(
-                    pow(abs(velocity), 0.4),
-                    cond(lessThan(velocity, 0), -1, 1),
-                  ),
-                ),
-              ),
-
-              cond(finished, [
-                set(velocity, 0),
-                set(useDecay, 0),
-                set(duration, 500),
-                set(frameTime, 0),
-                set(time, 0),
-                set(finished, 0),
-              ]),
-            ],
-            [
-              cond(shouldStartTiming, [
-                set(frameTime, 0),
-                set(time, 0),
-                set(finished, 0),
-              ]),
-
-              timing(
-                clock,
-                {
-                  position: progress,
-                  time: time,
-                  finished: finished,
-                  frameTime: frameTime,
-                },
-                {
-                  duration: duration,
-                  easing,
-                  toValue: toValue,
-                },
-              ),
-              cond(shouldStartTiming, startClock(clock)),
-              cond(finished, [
-                set(duration, 500),
-                set(index, round(divide(toValue, this._itemHeight))),
-                stopClock(clock),
-              ]),
-            ],
-          ),
-
-          set(gestureState, State.UNDETERMINED),
-        ],
-      ),
-      onChange(
-        index,
-        call([index], (args) => this._onIndexChange(args[0])),
-      ),
-      set(previousGesture, gesture),
-      progress,
-    ]);
-  }
-
-  componentDidUpdate(prevProps: PickerViewCustomProps) {
-    const { data, selected, itemHeight } = this.props;
-
-    const dataLength = data.length;
-
-    if (prevProps.data.length !== dataLength) {
-      this._scrollToIndex(clamp(0, selected!, dataLength - 1));
-      this._progress.setValue(this._indexJs * itemHeight!);
-      this._index.setValue(this._indexJs);
-      this._dataLength.setValue(dataLength);
-    } else if (prevProps.selected !== selected && -this._indexJs !== selected) {
-      this._indexJs = -selected!;
-      this._toValue.setValue(this._indexJs * itemHeight!);
-    }
-
-    if (prevProps.itemHeight !== itemHeight) {
-      this._itemHeight.setValue(itemHeight!);
-      this._toValue.setValue(this._indexJs * itemHeight!);
-    }
-  }
-
-  _onIndexChange(index: number) {
-    this._indexJs = index;
-    if (-index === this.props.selected) return;
-    // this.props.onChange?.(Math.abs(index));
-    this.props.onSelected?.(Math.abs(index));
-  }
-
-  _scrollToIndex = (index: number) => {
-    this._indexJs = -index;
-    this._toValue.setValue(-index * this.props.itemHeight!);
-  };
-
-  render() {
-    const {
-      itemColor,
-      itemFontSize,
+        (finished) => {
+          if (finished) {
+            runOnJS(handleSelected)(Math.round(-toValue / itemHeight!));
+          }
+        },
+      );
+    },
+    [
+      isOvershotTop,
+      isOvershotTop,
       itemHeight,
-      itemTotal,
-      indicatorColor,
-      overlayColor,
-      data,
-    } = this.props;
+      maxScroll,
+      minScroll,
+      handleSelected,
+    ],
+  );
 
-    const halfTotal = Math.floor(itemTotal! / 2);
+  const scrollToIndex = React.useCallback(
+    (index: number, duration: number = DEFAULT_DURATION) => {
+      animateTo(-index * itemHeight!, duration);
+    },
+    [animateTo, itemHeight],
+  );
 
-    return (
-      <View
-        style={{
-          height: itemHeight! * itemTotal!,
-          overflow: 'hidden',
-          backgroundColor: overlayColor,
-        }}>
-        <PanGestureHandler
-          onGestureEvent={this._pan}
-          onHandlerStateChange={this._pan}
-          failOffsetX={OFFSET}
-          activeOffsetY={OFFSET}>
-          <Animated.View
-            style={{
+  React.useLayoutEffect(() => {
+    if (selected != null) {
+      const clampSelected = clamp(dataLength - 1, selected, 0);
+
+      scrollToIndex(
+        clampSelected,
+        clampSelected === selected ? DEFAULT_DURATION : 0,
+      );
+    }
+  }, [selected, dataLength, itemHeight]);
+
+  const onGestureEvent = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    {
+      previousGesture: number;
+    }
+  >(
+    {
+      onStart({ translationY }, _) {
+        cancelAnimation(progress);
+        _.previousGesture = translationY;
+      },
+      onActive({ translationY, velocityY }, _) {
+        cancelAnimation(progress);
+        let dist = translationY - _.previousGesture;
+        _.previousGesture = translationY;
+        if (isOvershotCurrent.value) {
+          dist /= 4;
+        }
+        progress.value = progress.value + dist;
+      },
+      onEnd({ velocityY }) {
+        let duration = DEFAULT_DURATION;
+        let toValue = progress.value;
+
+        if (!isOvershotCurrent.value) {
+          const av = Math.abs(velocityY);
+
+          if (av > VELOCITY_THRESHOLD) {
+            duration =
+              Math.log(VELOCITY_THRESHOLD / av) / Math.log(DECELERATION);
+            const kv = Math.pow(DECELERATION, duration);
+            const kx = (DECELERATION * (1 - kv)) / (1 - DECELERATION);
+            toValue = progress.value + (velocityY / 1000) * kx;
+
+            if (
+              isOvershotBottom(toValue, OVER_OFFSET) ||
+              isOvershotTop(toValue, OVER_OFFSET)
+            ) {
+              progress.value = withDecay(
+                {
+                  velocity: velocityY,
+                  deceleration: DECELERATION,
+                  clamp: [maxScroll - OVER_OFFSET, minScroll + OVER_OFFSET],
+                },
+                () => {
+                  animateTo(progress.value, DEFAULT_DURATION);
+                },
+              );
+              return;
+            }
+          }
+        }
+
+        animateTo(toValue, duration);
+      },
+    },
+    [isOvershotTop, isOvershotBottom, maxScroll, minScroll, animateTo],
+  );
+
+  const animateStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: progress.value }],
+    };
+  }, []);
+
+  const halfTotal = Math.floor(itemTotal! / 2);
+
+  return (
+    <View
+      style={{
+        height: itemHeight! * itemTotal!,
+        overflow: 'hidden',
+        backgroundColor: overlayColor,
+      }}>
+      <PanGestureHandler
+        onGestureEvent={onGestureEvent}
+        failOffsetX={OFFSET}
+        activeOffsetY={OFFSET}>
+        <Animated.View
+          style={[
+            {
               paddingVertical: halfTotal * itemHeight!,
               flexDirection: 'column',
-              transform: [{ translateY: this._translate }],
-            }}>
-            {data.map((item, index) => {
-              const isObjItem = isAnyObject(item);
-              const key = isObjItem ? (item as any).value : item;
-              const label = isObjItem ? (item as any).label : item;
+            },
+            animateStyle,
+          ]}>
+          {data.map((item, index) => {
+            const isObjItem = isAnyObject(item);
+            const key = isObjItem ? (item as any).value : item;
+            const label = isObjItem ? (item as any).label : item;
 
-              return (
-                <PickerItem
-                  onPress={this._scrollToIndex}
-                  index={index}
-                  key={key}
-                  label={label}
-                  color={itemColor!}
-                  height={itemHeight!}
-                  fontSize={itemFontSize!}
-                />
-              );
-            })}
-          </Animated.View>
-        </PanGestureHandler>
+            return (
+              <PickerItem
+                onPress={scrollToIndex}
+                index={index}
+                key={key}
+                label={label}
+                color={itemColor!}
+                height={itemHeight!}
+                fontSize={itemFontSize!}
+              />
+            );
+          })}
+        </Animated.View>
+      </PanGestureHandler>
 
-        <PickerOverlay
-          overlayColor={overlayColor!}
-          indicatorColor={indicatorColor!}
-          height={itemHeight!}
-          total={halfTotal}
-        />
-      </View>
-    );
-  }
-}
+      <PickerOverlay
+        overlayColor={overlayColor!}
+        indicatorColor={indicatorColor!}
+        height={itemHeight!}
+        total={halfTotal}
+      />
+    </View>
+  );
+};
+
+PickerViewCustom.defaultProps = {
+  indicatorColor: '#666',
+  itemColor: '#333',
+  overlayColor: '#fff',
+  itemHeight: 36,
+  data: [],
+  itemTotal: 7,
+  itemFontSize: 16,
+};

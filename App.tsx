@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, I18nManager } from 'react-native';
+import { View, Text } from 'react-native';
 import { DarklyText } from 'rn-darkly';
 import { PickerView, Picker } from './library/main';
-
-// I18nManager.forceRTL(false);
 
 const App = () => {
   const [selected, setSelected] = React.useState(0);
@@ -17,41 +15,44 @@ const App = () => {
       .map((v, i) => ({ value: i, label: i + 'label' }));
   }, [count]);
 
-  // console.log('selected', visible);
+  console.log('selected', selected);
   return (
     <>
       <View style={{ paddingTop: 200 }}>
         <DarklyText
           onPress={() => {
-            // setVisible(!visible)
+            setVisible(!visible);
 
-            const key = Picker.show({
-              maskCloseable: false,
-              data,
-              title: '请选择',
-              selected,
-              onSelected: setSelected,
-              onCancel(e) {
-                e.preventDefault();
-                // Picker.hide(key);
-              },
-              itemHeight: 32,
-              forceDark: true,
-              // itemTotal: 9,
-            });
+            // const key = Picker.show({
+            //   // maskCloseable: false,
+            //   data,
+            //   // maskBackgroundColor: 'black',
+            //   title: '请选择',
+            //   selected,
+            //   onSelected: setSelected,
+            //   onCancel(e) {
+            //     e.preventDefault();
+            //     // Picker.hide(key);
+            //   },
+            //   itemHeight: 32,
+            //   forceDark: true,
+            //   // itemTotal: 9,
+            // });
           }}
           style={{ color: '#333' }}
           dark_style={{ color: '#ccc' }}>
           open
         </DarklyText>
-        {/*<Picker*/}
-        {/*  // visible={visible}*/}
-        {/*  // onWillChange={setVisible}*/}
-        {/*  // forceDark*/}
-        {/*  title="请选择"*/}
-        {/*  selected={selected}*/}
-        {/*  onSelected={setSelected}*/}
-        {/*  data={data}></Picker>*/}
+        <PickerView
+          // mask={false}
+          // visible={visible}
+          // onChange={setVisible}
+          // forceDark
+          // title="请选择"
+          selected={selected}
+          onSelected={setSelected}
+          data={data}
+        />
       </View>
       <Text
         onPress={() => {
