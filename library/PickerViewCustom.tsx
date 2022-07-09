@@ -14,11 +14,13 @@ import Animated, {
   withTiming,
   withDecay,
   runOnJS,
+  EasingFunctionFactory,
 } from 'react-native-reanimated';
 import { isAnyObject } from '@liuyunjs/utils/lib/isAnyObject';
 import { clamp } from '@liuyunjs/utils/lib/clamp';
 import { PickerItem } from './PickerItem';
 import { PickerOverlay } from './PickerOverlay';
+import { useCallback } from 'react';
 
 type Item =
   | { value: string | number; label: string | number }
@@ -40,7 +42,6 @@ export type PickerViewCustomProps = {
 const OFFSET = [-10, 10];
 const DECELERATION = 0.998;
 const VELOCITY_THRESHOLD = 5;
-const OVER_OFFSET = 100;
 const DEFAULT_DURATION = 500;
 
 const easing = Easing.bezier(0.075, 0.82, 0.165, 1);
@@ -56,25 +57,25 @@ export const PickerViewCustom: React.FC<PickerViewCustomProps> = ({
   selected,
   onSelected,
 }) => {
-  const progress = useSharedValue(-selected! * itemHeight!);
+  const progress = useSharedValue(selected!);
   const dataLength = data.length;
-  const maxScroll = (1 - dataLength) * itemHeight!;
-  const minScroll = 0;
+  const maxIndex = Math.max(dataLength - 1, 0);
+  const minIndex = 0;
 
   const isOvershotBottom = React.useCallback(
     (next: number, offset: number = 0) => {
       'worklet';
-      return next <= maxScroll - offset;
+      return next >= maxIndex + offset;
     },
-    [maxScroll],
+    [maxIndex],
   );
 
   const isOvershotTop = React.useCallback(
     (next: number, offset: number = 0) => {
       'worklet';
-      return next >= offset + minScroll;
+      return next <= minIndex - offset;
     },
-    [minScroll],
+    [minIndex],
   );
 
   const isOvershotCurrent = useDerivedValue(() => {
@@ -90,17 +91,31 @@ export const PickerViewCustom: React.FC<PickerViewCustomProps> = ({
     [onSelected],
   );
 
+  const resetProgress = useCallback(
+    (index: number) => {
+      'worklet';
+      progress.value = index;
+      runOnJS(handleSelected)(Math.round(index));
+    },
+    [handleSelected],
+  );
+
   const animateTo = React.useCallback(
-    (toValue: number, duration: number) => {
+    (
+      toValue: number,
+      duration: number,
+      easing: Animated.EasingFunction | EasingFunctionFactory,
+    ) => {
       'worklet';
 
       toValue = isOvershotTop(toValue)
-        ? minScroll
+        ? minIndex
         : isOvershotBottom(toValue)
-        ? maxScroll
-        : Math.round(toValue / itemHeight!) * itemHeight!;
+        ? maxIndex
+        : Math.round(toValue);
 
       if (toValue === progress.value) return;
+      if (!duration) return resetProgress(toValue);
 
       progress.value = withTiming(
         toValue,
@@ -109,9 +124,7 @@ export const PickerViewCustom: React.FC<PickerViewCustomProps> = ({
           easing,
         },
         (finished) => {
-          if (finished) {
-            runOnJS(handleSelected)(Math.round(-toValue / itemHeight!));
-          }
+          finished && resetProgress(toValue);
         },
       );
     },
@@ -119,29 +132,31 @@ export const PickerViewCustom: React.FC<PickerViewCustomProps> = ({
       isOvershotTop,
       isOvershotTop,
       itemHeight,
-      maxScroll,
-      minScroll,
-      handleSelected,
+      minIndex,
+      maxIndex,
+      resetProgress,
     ],
   );
 
   const scrollToIndex = React.useCallback(
     (index: number, duration: number = DEFAULT_DURATION) => {
-      animateTo(-index * itemHeight!, duration);
+      animateTo(index, duration, Easing.inOut(Easing.cubic));
     },
-    [animateTo, itemHeight],
+    [animateTo],
   );
 
-  React.useLayoutEffect(() => {
+  const resetSelected = (forceReset?: boolean) => {
     if (selected != null) {
       const clampSelected = clamp(dataLength - 1, selected, 0);
-
       scrollToIndex(
         clampSelected,
-        clampSelected === selected ? DEFAULT_DURATION : 0,
+        !forceReset && clampSelected === selected ? DEFAULT_DURATION : 0,
       );
     }
-  }, [selected, dataLength, itemHeight]);
+  };
+
+  React.useLayoutEffect(() => resetSelected(true), [dataLength]);
+  React.useLayoutEffect(() => resetSelected(), [selected]);
 
   const onGestureEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
@@ -158,55 +173,54 @@ export const PickerViewCustom: React.FC<PickerViewCustomProps> = ({
         cancelAnimation(progress);
         let dist = translationY - _.previousGesture;
         _.previousGesture = translationY;
-        if (isOvershotCurrent.value) {
-          dist /= 4;
-        }
-        progress.value = progress.value + dist;
+        isOvershotCurrent.value && (dist /= 4);
+        progress.value -= dist / itemHeight!;
       },
       onEnd({ velocityY }) {
         let duration = DEFAULT_DURATION;
         let toValue = progress.value;
 
         if (!isOvershotCurrent.value) {
-          const av = Math.abs(velocityY);
-
+          velocityY /= -itemHeight!;
+          let av = Math.abs(velocityY);
           if (av > VELOCITY_THRESHOLD) {
             duration =
               Math.log(VELOCITY_THRESHOLD / av) / Math.log(DECELERATION);
             const kv = Math.pow(DECELERATION, duration);
             const kx = (DECELERATION * (1 - kv)) / (1 - DECELERATION);
             toValue = progress.value + (velocityY / 1000) * kx;
-
-            if (
-              isOvershotBottom(toValue, OVER_OFFSET) ||
-              isOvershotTop(toValue, OVER_OFFSET)
-            ) {
+            if (isOvershotBottom(toValue, 4) || isOvershotTop(toValue, 4)) {
               progress.value = withDecay(
                 {
                   velocity: velocityY,
                   deceleration: DECELERATION,
-                  clamp: [maxScroll - OVER_OFFSET, minScroll + OVER_OFFSET],
+                  clamp: [minIndex - 2, maxIndex + 2],
                 },
-                () => {
-                  animateTo(progress.value, DEFAULT_DURATION);
-                },
+                () => animateTo(progress.value, DEFAULT_DURATION, easing),
               );
               return;
             }
           }
         }
 
-        animateTo(toValue, duration);
+        animateTo(toValue, duration, easing);
       },
     },
-    [isOvershotTop, isOvershotBottom, maxScroll, minScroll, animateTo],
+    [
+      isOvershotTop,
+      isOvershotBottom,
+      minIndex,
+      maxIndex,
+      itemHeight,
+      animateTo,
+    ],
   );
 
   const animateStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: progress.value }],
+      transform: [{ translateY: -progress.value * itemHeight! }],
     };
-  }, []);
+  }, [itemHeight]);
 
   const halfTotal = Math.floor(itemTotal! / 2);
 
